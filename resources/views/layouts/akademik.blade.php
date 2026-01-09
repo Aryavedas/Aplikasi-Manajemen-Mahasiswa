@@ -32,8 +32,8 @@
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg tracking-wide">SiAkad</h1>
-                    <p class="text-xs text-gray-400">Universitas Unggul</p>
+                    <h1 class="font-bold text-lg tracking-wide">Sistem</h1>
+                    <p class="text-xs text-gray-400">Universitas Muhammadiyah Surakarta</p>
                 </div>
             </div>
 

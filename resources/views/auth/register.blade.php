@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Register - SiAkad Universitas Unggul</title>
+    <title>Register - Sistem Universitas Muhammadiyah Surakarta</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,7 +28,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg text-white tracking-wide">Pendaftaran Mahasiswa</h1>
-                    <p class="text-xs text-gray-400">Buat akun untuk akses SiAkad</p>
+                    <p class="text-xs text-gray-400">Buat akun untuk akses Sistem</p>
                 </div>
             </div>
         </div>

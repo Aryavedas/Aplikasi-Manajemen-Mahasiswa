@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login - SiAkad Universitas Unggul</title>
+    <title>Login - Sistem Universitas Muhammadiyah Surakarta</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,8 +27,8 @@
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-2xl text-white tracking-wide">SiAkad</h1>
-                    <p class="text-sm text-gray-400">Universitas Unggul</p>
+                    <h1 class="font-bold text-2xl text-white tracking-wide">Sistem</h1>
+                    <p class="text-sm text-gray-400">Universitas Muhammadiyah Surakarta</p>
                 </div>
             </div>
         </div>
