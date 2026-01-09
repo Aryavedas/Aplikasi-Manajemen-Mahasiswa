@@ -27,7 +27,7 @@
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg text-white tracking-wide">Pendaftaran Mahasiswa</h1>
+                    <h1 class="font-bold text-lg text-white tracking-wide">Pendaftaran Admin</h1>
                     <p class="text-xs text-gray-400">Buat akun untuk akses Sistem</p>
                 </div>
             </div>
