@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 
 class MahasiswaController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     // Tampil semua data
     public function index()
     {
@@ -36,7 +41,7 @@ class MahasiswaController extends Controller
             ->with('success', 'Data mahasiswa berhasil ditambahkan');
     }
 
-    // Detail mahasiswa (BARU)
+    // (OPSIONAL) kalau tidak dipakai, aman dihapus
     public function show(Mahasiswa $mahasiswa)
     {
         return view('mahasiswa.show', compact('mahasiswa'));

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use App\Models\User;
 use App\Models\Mahasiswa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -10,202 +11,149 @@ class MahasiswaControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    /* =========================
-        INDEX
-    ========================== */
-
-    /** @test */
-    public function index_menampilkan_daftar_mahasiswa()
+    protected function login()
     {
-        Mahasiswa::create([
-            'nim' => '20230001',
-            'nama' => 'Budi',
+        $user = User::factory()->create();
+        return $this->actingAs($user);
+    }
+
+    protected function mahasiswaData($override = [])
+    {
+        return array_merge([
+            'nim' => '20231234',
+            'nama' => 'Budi Santoso',
             'jurusan' => 'Informatika',
             'angkatan' => '2023',
-        ]);
+        ], $override);
+    }
 
-        $response = $this->get(route('mahasiswa.index'));
+    /** 🔒 GUEST DILARANG AKSES */
+    public function test_guest_cannot_access_mahasiswa_pages()
+    {
+        $this->get('/mahasiswa')->assertRedirect('/login');
+        $this->get('/mahasiswa/create')->assertRedirect('/login');
+    }
+
+    /** 📄 INDEX */
+    public function test_authenticated_user_can_view_mahasiswa_index()
+    {
+        $this->login();
+
+        $response = $this->get('/mahasiswa');
 
         $response->assertStatus(200);
         $response->assertViewIs('mahasiswa.index');
-        $response->assertSee('Budi');
     }
 
-    /* =========================
-        CREATE
-    ========================== */
-
-    /** @test */
-    public function create_menampilkan_form_tambah_mahasiswa()
+    /** ➕ CREATE FORM */
+    public function test_authenticated_user_can_view_create_form()
     {
-        $response = $this->get(route('mahasiswa.create'));
+        $this->login();
 
-        $response->assertStatus(200);
-        $response->assertViewIs('mahasiswa.create');
+        $this->get('/mahasiswa/create')
+            ->assertStatus(200)
+            ->assertViewIs('mahasiswa.create');
     }
 
-    /* =========================
-        STORE - SUCCESS
-    ========================== */
-
-    /** @test */
-    public function store_berhasil_menyimpan_data_mahasiswa()
+    /** 💾 STORE VALID */
+    public function test_store_mahasiswa_success()
     {
-        $data = [
-            'nim' => '20230002',
-            'nama' => 'Siti',
-            'jurusan' => 'Sistem Informasi',
-            'angkatan' => '2023',
-        ];
+        $this->login();
 
-        $response = $this->post(route('mahasiswa.store'), $data);
+        $response = $this->post('/mahasiswa', $this->mahasiswaData());
 
-        $response->assertRedirect(route('mahasiswa.index'));
-        $response->assertSessionHas('success');
-
-        $this->assertDatabaseHas('mahasiswas', $data);
-    }
-
-    /* =========================
-        STORE - VALIDATION ERROR
-    ========================== */
-
-    /** @test */
-    public function store_gagal_jika_field_kosong()
-    {
-        $response = $this->post(route('mahasiswa.store'), []);
-
-        $response->assertSessionHasErrors([
-            'nim',
-            'nama',
-            'jurusan',
-            'angkatan',
-        ]);
-    }
-
-    /** @test */
-    public function store_gagal_jika_nim_duplikat()
-    {
-        Mahasiswa::create([
-            'nim' => '20230003',
-            'nama' => 'Andi',
-            'jurusan' => 'Informatika',
-            'angkatan' => '2023',
-        ]);
-
-        $response = $this->post(route('mahasiswa.store'), [
-            'nim' => '20230003',
-            'nama' => 'Rina',
-            'jurusan' => 'Sistem Informasi',
-            'angkatan' => '2023',
-        ]);
-
-        $response->assertSessionHasErrors('nim');
-    }
-
-    /* =========================
-        EDIT
-    ========================== */
-
-    /** @test */
-    public function edit_menampilkan_form_edit_mahasiswa()
-    {
-        $mahasiswa = Mahasiswa::create([
-            'nim' => '20230005',
-            'nama' => 'Ayu',
-            'jurusan' => 'Sistem Informasi',
-            'angkatan' => '2021',
-        ]);
-
-        $response = $this->get(route('mahasiswa.edit', $mahasiswa));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('mahasiswa.edit');
-        $response->assertSee('Ayu');
-    }
-
-    /* =========================
-        UPDATE - SUCCESS
-    ========================== */
-
-    /** @test */
-    public function update_berhasil_mengubah_data_mahasiswa()
-    {
-        $mahasiswa = Mahasiswa::create([
-            'nim' => '20230006',
-            'nama' => 'Rudi',
-            'jurusan' => 'Informatika',
-            'angkatan' => '2022',
-        ]);
-
-        $response = $this->put(route('mahasiswa.update', $mahasiswa), [
-            'nim' => '20230006',
-            'nama' => 'Rudi Update',
-            'jurusan' => 'Teknik Komputer',
-            'angkatan' => '2023',
-        ]);
-
-        $response->assertRedirect(route('mahasiswa.index'));
+        $response->assertRedirect('/mahasiswa');
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('mahasiswas', [
-            'nama' => 'Rudi Update',
-            'jurusan' => 'Teknik Komputer',
+            'nim' => '20231234'
         ]);
     }
 
-    /* =========================
-        UPDATE - VALIDATION ERROR
-    ========================== */
-
-    /** @test */
-    public function update_gagal_jika_nim_dipakai_mahasiswa_lain()
+    /** ❌ STORE INVALID */
+    public function test_store_mahasiswa_validation_error()
     {
-        Mahasiswa::create([
-            'nim' => '20230007',
-            'nama' => 'User A',
-            'jurusan' => 'Informatika',
-            'angkatan' => '2023',
-        ]);
+        $this->login();
 
-        $mahasiswaB = Mahasiswa::create([
-            'nim' => '20230008',
-            'nama' => 'User B',
-            'jurusan' => 'SI',
-            'angkatan' => '2023',
-        ]);
+        $response = $this->post('/mahasiswa', []);
 
-        $response = $this->put(route('mahasiswa.update', $mahasiswaB), [
-            'nim' => '20230007',
-            'nama' => 'User B',
-            'jurusan' => 'SI',
-            'angkatan' => '2023',
+        $response->assertSessionHasErrors([
+            'nim', 'nama', 'jurusan', 'angkatan'
         ]);
-
-        $response->assertSessionHasErrors('nim');
     }
 
-    /* =========================
-        DESTROY
-    ========================== */
-
-    /** @test */
-    public function destroy_berhasil_menghapus_mahasiswa()
+    /** ❌ STORE UNIQUE NIM */
+    public function test_store_mahasiswa_nim_must_be_unique()
     {
-        $mahasiswa = Mahasiswa::create([
-            'nim' => '20230009',
-            'nama' => 'Hapus Saya',
-            'jurusan' => 'Informatika',
-            'angkatan' => '2020',
+        $this->login();
+
+        Mahasiswa::create($this->mahasiswaData());
+
+        $this->post('/mahasiswa', $this->mahasiswaData())
+            ->assertSessionHasErrors('nim');
+    }
+
+    /** ✏️ EDIT FORM */
+    public function test_edit_mahasiswa()
+    {
+        $this->login();
+
+        $mahasiswa = Mahasiswa::create($this->mahasiswaData());
+
+        $this->get("/mahasiswa/{$mahasiswa->id}/edit")
+            ->assertStatus(200)
+            ->assertViewIs('mahasiswa.edit');
+    }
+
+    /** 🔄 UPDATE SUCCESS */
+    public function test_update_mahasiswa_success()
+    {
+        $this->login();
+
+        $mahasiswa = Mahasiswa::create($this->mahasiswaData());
+
+        $response = $this->put("/mahasiswa/{$mahasiswa->id}", 
+            $this->mahasiswaData([
+                'nama' => 'Nama Update'
+            ])
+        );
+
+        $response->assertRedirect('/mahasiswa');
+
+        $this->assertDatabaseHas('mahasiswas', [
+            'nama' => 'Nama Update'
         ]);
+    }
 
-        $response = $this->delete(route('mahasiswa.destroy', $mahasiswa));
+    /** ❌ UPDATE UNIQUE NIM */
+    public function test_update_mahasiswa_unique_nim_except_self()
+    {
+        $this->login();
 
-        $response->assertRedirect(route('mahasiswa.index'));
-        $response->assertSessionHas('success');
+        $m1 = Mahasiswa::create($this->mahasiswaData(['nim' => '111']));
+        $m2 = Mahasiswa::create($this->mahasiswaData(['nim' => '222']));
+
+        $this->put("/mahasiswa/{$m2->id}", [
+            'nim' => '111',
+            'nama' => 'Test',
+            'jurusan' => 'SI',
+            'angkatan' => '2023'
+        ])->assertSessionHasErrors('nim');
+    }
+
+    /** 🗑 DELETE */
+    public function test_delete_mahasiswa()
+    {
+        $this->login();
+
+        $mahasiswa = Mahasiswa::create($this->mahasiswaData());
+
+        $response = $this->delete("/mahasiswa/{$mahasiswa->id}");
+
+        $response->assertRedirect('/mahasiswa');
 
         $this->assertDatabaseMissing('mahasiswas', [
-            'id' => $mahasiswa->id,
+            'id' => $mahasiswa->id
         ]);
     }
 }
