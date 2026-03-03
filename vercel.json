@@ -24,7 +24,7 @@
         "CACHE_DRIVER": "array", 
         "SESSION_DRIVER": "cookie",
         "QUEUE_CONNECTION": "sync",
-
+ 
         "VIEW_COMPILED_PATH": "/tmp/storage/framework/views" 
     }
 }
